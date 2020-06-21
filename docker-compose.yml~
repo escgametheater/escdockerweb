@@ -1,0 +1,7 @@
+version: '1'
+services:
+	web:
+		build: config/web
+		ports:
+		 - "80:80"
+	memcached

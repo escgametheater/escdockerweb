@@ -1,0 +1,1 @@
+../../../../../esc-web/core/domain/db/schema.sql

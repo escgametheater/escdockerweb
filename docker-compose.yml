@@ -1,0 +1,156 @@
+version: '3'
+services:
+
+#  web-www:
+#    build: dev/config/web/www
+#    ports:
+#     - "80:80"
+#    volumes:
+#     - ../esc-web/:/home/escweb
+#     - ./dev/config/web/www/php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+#    links:
+#     - "redis-web:redis"
+#     - "mysql:db"
+#     - "tasksworker:tasksworker"
+#     - "minio1:awshost"
+#     - minio2
+#     - minio3
+#     - minio4
+#    image: escgames/escdocker_web-www:latest
+
+  redis-web:
+    build: dev/config/redis-web
+    ports:
+     - "6379:6379"
+    image: escgames/escdocker_redis-web:latest
+
+  mysql:
+    build: dev/config/mysql
+    ports:
+     - "3306:3306"
+    volumes:
+     - ../esc-web/:/home/escweb
+    environment:
+      MYSQL_ROOT_PASSWORD: <<<REDACTED>>>
+    image: escgames/escdocker_mysql:latest
+#      MYSQL_DATABASE: <<<REDACTED>>>
+#      MYSQL_USER: <<<REDACTED>>>
+#      MYSQL_PASSWORD: <<<REDACTED>>>
+
+  tasksworker:
+    build: dev/config/tasksworker
+    ports:
+     - "4730:4730"
+    links:
+     - "redis-web:redis"
+     - "mysql:db"
+     - "minio1:awshost"
+    volumes:
+     - ../esc-web/:/home/escweb
+    image: escgames/escdocker_tasksworker:latest
+
+
+  minio1:
+    image: minio/minio
+    # build: config/minio
+    volumes:
+     - game-build-assets1:/export
+    ports:
+     - "9001:9000"
+    environment:
+      MINIO_ACCESS_KEY: <<<REDACTED>>>
+      MINIO_SECRET_KEY: <<<REDACTED>>>
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+  minio2:
+    image: minio/minio
+    volumes:
+     - game-build-assets2:/export
+    ports:
+     - "9002:9000"
+    environment:
+      MINIO_ACCESS_KEY: <<<REDACTED>>>
+      MINIO_SECRET_KEY: <<<REDACTED>>>
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+  minio3:
+    image: minio/minio
+    volumes:
+     - game-build-assets3:/export
+    ports:
+     - "9003:9000"
+    environment:
+      MINIO_ACCESS_KEY: <<<REDACTED>>>
+      MINIO_SECRET_KEY: <<<REDACTED>>>
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+  minio4:
+    image: minio/minio
+    volumes:
+     - game-build-assets4:/export
+    ports:
+     - "9004:9000"
+    environment:
+      MINIO_ACCESS_KEY: <<<REDACTED>>>
+      MINIO_SECRET_KEY: <<<REDACTED>>>
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+  nginx:
+    build: ./dev/config/nginx/
+
+    ports:
+     - "80:80"
+    volumes:
+     - ../esc-web/:/home/escweb
+    links:
+     - "redis-web:redis"
+     - "mysql:db"
+     - "hhvm:hhvm"
+     - "tasksworker:tasksworker"
+     - "minio1:awshost"
+     - minio2
+     - minio3
+     - minio4
+    command: [nginx-debug, '-g', 'daemon off;']
+
+  hhvm:
+    build: dev/config/web/hhvm/
+
+    ports:
+     - "9010:9010"
+    volumes:
+     - ../esc-web/:/home/escweb
+    links:
+     - "redis-web:redis"
+     - "mysql:db"
+     - "tasksworker:tasksworker"
+     - "minio1:awshost"
+     - minio2
+     - minio3
+     - minio4
+
+
+  cron:
+    build: dev/config/cron/
+
+#    ports:
+#     - "9010:9010"
+    volumes:
+     - ../esc-web/:/home/escweb
+    links:
+     - "redis-web:redis"
+     - "mysql:db"
+     - "tasksworker:tasksworker"
+     - "minio1:awshost"
+     - minio2
+     - minio3
+     - minio4
+
+
+## By default this config uses default local driver,
+## For custom volumes replace with volume driver configuration.
+volumes:
+  game-build-assets1:
+  game-build-assets2:
+  game-build-assets3:
+  game-build-assets4:

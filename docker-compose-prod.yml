@@ -1,0 +1,25 @@
+version: '3'
+services:
+
+  prod_web:
+    build: prod/config/web/www
+    ports:
+     - "80:80"
+    links:
+     - "prod_redis-web:redis"
+     - "prod_tasksworker:tasksworker"
+    image: escgames/prod_web:latest
+
+  prod_redis-web:
+    build: prod/config/redis-web
+    ports:
+     - "6379:6379"
+    image: escgames/prod_redis-web:latest
+
+  prod_tasksworker:
+    build: prod/config/tasksworker
+    ports:
+     - "4730:4730"
+    links:
+     - "prod_redis-web:redis"
+    image: escgames/prod_tasksworker:latest

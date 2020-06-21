@@ -1,0 +1,9 @@
+[Unit]
+Description=tasksworker
+
+[Service]
+ExecStart=/usr/bin/python /usr/local/bin/tasksworker.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

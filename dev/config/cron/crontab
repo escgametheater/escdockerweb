@@ -1,0 +1,4 @@
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * root /process-sms-queue.sh >> /var/log/cron.log 2>&1
+* * * * * root /clean-instances.sh >> /var/log/cron.log 2>&1
+0 * * * * root /hourly-scripts.sh >> /var/log/cron.log 2>&1
+0 0 * * * root /daily-scripts.sh >> /var/log/cron.log 2>&1

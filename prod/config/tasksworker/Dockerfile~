@@ -1,0 +1,17 @@
+FROM php:7.2
+ADD gearman-manager.ini /etc/gearman-manager.ini
+ADD tasksworker.py /usr/local/bin/tasksworker.py
+ADD tasksworker.service /etc/systemd/system/tasksworker.service
+ADD restart-tasksworker.sh /usr/local/bin/restart-tasksworker.sh
+RUN mkdir /var/escweb; mkdir /var/escweb/media; mkdir /var/escweb/uploads; mkdir /var/escweb/log; mkdir /var/escweb/cache; mkdir /var/escweb/templates;
+RUN touch /var/escweb/log/error.log
+RUN chmod -R 777 /var/escweb/*
+RUN apt-get update && apt-get install -y \
+        libpq-dev \
+	curl \
+    && docker-php-ext-install mbstring \
+    && docker-php-ext-install mysqli \
+    && pecl install redis-4.0.1 \
+    && pecl install apcu-5.1.11 \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-enable apcu \

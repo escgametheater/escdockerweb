@@ -1,0 +1,6 @@
+#!/bin/bash
+echo Stopping Tasksworker...
+systemctl stop tasksworker.service
+echo Starting Tasksworker...
+systemctl start tasksworker.service
+echo Done.
